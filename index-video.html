@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Video Tag Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      margin-right: 0.5rem;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      padding: 0.5rem;
+      box-sizing: border-box;
+      font-family: monospace;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Video Tag Generator</h1>
+  <label>
+    MP4 URL:
+    <input type="text" id="mp4Url" placeholder="Enter MP4 URL here" />
+  </label>
+  <label>
+    WebM URL:
+    <input type="text" id="webmUrl" placeholder="Enter WebM URL here" />
+  </label>
+  <label>
+    Poster Image URL:
+    <input type="text" id="posterUrl" placeholder="Enter poster image URL here" />
+  </label>
+  <button id="generateBtn">Generate Video Tag</button>
+  <button id="copyBtn" disabled>Copy to Clipboard</button>
+  <textarea id="output" readonly placeholder="Generated HTML snippet will appear here..."></textarea>
+
+  <script>
+    const mp4Input = document.getElementById('mp4Url');
+    const webmInput = document.getElementById('webmUrl');
+    const posterInput = document.getElementById('posterUrl');
+    const generateBtn = document.getElementById('generateBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const output = document.getElementById('output');
+
+    generateBtn.addEventListener('click', () => {
+      const mp4 = mp4Input.value.trim();
+      const webm = webmInput.value.trim();
+      const poster = posterInput.value.trim();
+      if (!mp4 && !webm) {
+        output.value = '';
+        copyBtn.disabled = true;
+        return;
+      }
+      let snippet = `<video muted autoplay${poster ? ` poster=\"${poster}\"` : ''}>\n`;
+      if (mp4) snippet += `  <source src=\"${mp4}\" type=\"video/mp4\">\n`;
+      if (webm) snippet += `  <source src=\"${webm}\" type=\"video/webm\">\n`;
+      snippet += '  Your browser does not support the video tag.\n</video>';
+      output.value = snippet;
+      copyBtn.disabled = false;
+    });
+
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText(output.value)
+        .then(() => {
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => copyBtn.textContent = 'Copy to Clipboard', 2000);
+        })
+        .catch(err => {
+          console.error('Copy failed:', err);
+          alert('Failed to copy to clipboard.');
+        });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<style>
+	/* Container styling */
+	#interactive-generator {
+		max-width: 800px;
+		margin: 20px auto;
+		padding: 0 10px 40px; /* Bottom padding for extra space */
+		font-family: Arial, sans-serif;
+		color: #333;
+	}
+
+	/* Title styling */
+	#interactive-generator h1 {
+		font-size: 24px;
+		text-align: center;
+		margin-bottom: 20px;
+	}
+
+	/* Responsive form grid */
+	#interactive-form {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+		gap: 15px;
+		margin-bottom: 20px;
+	}
+
+	/* Label and controls styling */
+	#interactive-form label {
+		display: flex;
+		flex-direction: column;
+		font-size: 14px;
+	}
+
+	#interactive-form select,
+	#interactive-form input,
+	#generated-code {
+		padding: 8px;
+		font-size: 14px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		margin-top: 5px;
+		width: 100%;
+		box-sizing: border-box;
+	}
+
+	#generated-code {
+		resize: vertical;
+		height: 120px;
+	}
+
+	#copy-btn {
+		padding: 10px 20px;
+		font-size: 14px;
+		border: none;
+		border-radius: 4px;
+		background-color: #007acc;
+		color: #fff;
+		cursor: pointer;
+		transition: background-color 0.2s ease;
+		margin: 20px 0 40px;
+	}
+
+	#copy-btn:active {
+		background-color: #005fa3;
+	}
+
+	@media (max-width: 600px) {
+		#interactive-form {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
+
+<div id="interactive-generator">
+	<h1>Interactive Element Generator</h1>
+	<div id="interactive-form"></div>
+	<div><strong>Generated HTML:</strong></div>
+	<textarea id="generated-code" readonly></textarea>
+	<button id="copy-btn">Copy to clipboard</button>
+</div>
+
+<script>
+	function generateInteractiveDiv(config = {}) {
+		const div = document.createElement("div");
+		div.className = "interactive";
+
+		// Always include the element type
+		if (config.element) {
+			div.setAttribute("data-element", config.element);
+		}
+		// Always include poster if provided
+		if (config.poster) {
+			div.setAttribute("data-poster", config.poster);
+		}
+		// Only include controls attribute if true
+		if (config.controls === "true") {
+			div.setAttribute("data-controls", "true");
+		}
+
+		if (config.element === "video") {
+			// Video-specific attributes
+			if (config.videoType) {
+				div.setAttribute("data-video-type", config.videoType);
+			}
+			if (config.mp4Src) {
+				div.setAttribute("data-mp4-src", config.mp4Src);
+			}
+			if (config.webmSrc) {
+				div.setAttribute("data-webm-src", config.webmSrc);
+			}
+			// Only include autoplay if true
+			if (config.autoplay === "true") {
+				div.setAttribute("data-autoplay", "true");
+			}
+			if (config.vtt) {
+				div.setAttribute("data-vtt", config.vtt);
+			}
+			if (config.caption) {
+				div.setAttribute("data-caption", config.caption);
+			}
+		} else if (config.element === "audio") {
+			// Audio-specific attributes
+			if (config.mp3Url) {
+				div.setAttribute("data-mp3-url", config.mp3Url);
+			}
+			if (config.oggUrl) {
+				div.setAttribute("data-ogg-url", config.oggUrl);
+			}
+			if (config.transcriptUrl) {
+				div.setAttribute("data-transcript-url", config.transcriptUrl);
+			}
+		}
+
+		return div;
+	}
+
+	document.addEventListener("DOMContentLoaded", () => {
+		const formContainer = document.getElementById("interactive-form");
+		const fields = [
+			{
+				id: "element",
+				label: "Element",
+				type: "select",
+				options: ["video", "audio"],
+				cls: "always",
+			},
+			{
+				id: "videoType",
+				label: "Video Type",
+				type: "select",
+				options: ["header", "inline", "immersive"],
+				cls: "video",
+			},
+			{
+				id: "autoplay",
+				label: "Autoplay?",
+				type: "select",
+				options: ["true", "false"],
+				cls: "video",
+			},
+			{ id: "poster", label: "Poster URL", type: "text", cls: "always" },
+			{ id: "mp4Src", label: "MP4 Src URL", type: "text", cls: "video" },
+			{ id: "webmSrc", label: "WebM Src URL", type: "text", cls: "video" },
+			{
+				id: "controls",
+				label: "Controls?",
+				type: "select",
+				options: ["true", "false"],
+				cls: "always",
+			},
+			{ id: "caption", label: "Caption", type: "text", cls: "caption" },
+			{ id: "vtt", label: "VTT URL (subtitles)", type: "text", cls: "video" },
+			{ id: "mp3Url", label: "MP3 URL", type: "text", cls: "audio" },
+			{ id: "oggUrl", label: "OGG URL", type: "text", cls: "audio" },
+			{
+				id: "transcriptUrl",
+				label: "Transcript URL",
+				type: "text",
+				cls: "audio",
+			},
+		];
+
+		// Build form inputs
+		fields.forEach((f) => {
+			const wrapper = document.createElement("label");
+			wrapper.textContent = f.label;
+			wrapper.classList.add(f.cls + "-field");
+			let control;
+			if (f.type === "select") {
+				control = document.createElement("select");
+				f.options.forEach((opt) => control.append(new Option(opt, opt)));
+			} else {
+				control = document.createElement("input");
+				control.type = "text";
+				control.placeholder = `Enter ${f.label}`;
+			}
+			control.id = `cfg-${f.id}`;
+			wrapper.appendChild(control);
+			formContainer.appendChild(wrapper);
+		});
+
+		const codeArea = document.getElementById("generated-code");
+		const copyBtn = document.getElementById("copy-btn");
+		const elementSelect = document.getElementById("cfg-element");
+
+		function updateVisibility() {
+			const isVideo = elementSelect.value === "video";
+			document
+				.querySelectorAll(".video-field")
+				.forEach((el) => (el.style.display = isVideo ? "" : "none"));
+			document
+				.querySelectorAll(".audio-field")
+				.forEach((el) => (el.style.display = isVideo ? "none" : ""));
+		}
+
+		function updateCode() {
+			const cfg = {};
+			fields.forEach((f) => {
+				const val = document.getElementById(`cfg-${f.id}`).value;
+				if (val) cfg[f.id] = val;
+			});
+			const div = generateInteractiveDiv(cfg);
+			codeArea.value = div.outerHTML;
+		}
+
+		// Initial render
+		updateVisibility();
+		updateCode();
+
+		// Event listeners
+		fields.forEach((f) => {
+			const el = document.getElementById(`cfg-${f.id}`);
+			el.addEventListener("input", () => {
+				if (f.id === "element") {
+					updateVisibility();
+				}
+				updateCode();
+			});
+		});
+		copyBtn.addEventListener("click", () => {
+			navigator.clipboard.writeText(codeArea.value);
+			copyBtn.textContent = "Copied!";
+			setTimeout(() => (copyBtn.textContent = "Copy to clipboard"), 2000);
+		});
+	});
+</script>
