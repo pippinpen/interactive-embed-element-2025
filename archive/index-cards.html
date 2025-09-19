@@ -1,0 +1,1119 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Interactive Snippet Builder</title>
+
+  <!-- Modern font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* =========================================================
+       Guardian Design Tokens
+       ========================================================= */
+    :root{
+      /* Brand */
+      --brand-100:#001536; --brand-300:#041F4A; --brand-400:#052962;
+      --brand-500:#0077B6; --brand-600:#506991; --brand-800:#C1D8FC;
+
+      /* Alternative */
+      --alt-200:#F3C100; --alt-400:#FFE500;
+
+      /* Neutrals */
+      --n-0:#000000; --n-7:#121212; --n-10:#1A1A1A; --n-20:#333333; --n-38:#545454;
+      --n-46:#707070; --n-60:#999999; --n-73:#BABABA; --n-86:#DCDCDC; --n-93:#EDEDED;
+      --n-97:#F6F6F6; --n-100:#FFFFFF;
+
+      /* Messaging */
+      --err-400:#C70000; --err-500:#FF9081; --ok-400:#22874D; --ok-500:#58D08B;
+
+      /* Spacing (4px grid) */
+      --s-4:4px; --s-8:8px; --s-12:12px; --s-16:16px; --s-20:20px; --s-24:24px;
+      --s-32:32px; --s-40:40px; --s-48:48px;
+
+      /* Type */
+      --ff:"Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      --font-size-base:17px;
+      --font-size-sm:14px;
+      --font-size-xs:12px;
+
+      /* Layout & effects */
+      --container-w:1040px;
+      --r-8:8px; --r-10:10px; --r-12:12px;
+      --shadow-1:0 2px 10px rgba(0,0,0,.25);
+      --shadow-2:0 10px 30px rgba(0,0,0,.35);
+    }
+
+    /* =========================================================
+       Role Variables (Light / Dark)
+       ========================================================= */
+
+    /* Light (default variables on :root) */
+    :root{
+      --surface:var(--n-97);
+      --elev-1:var(--n-100);
+      --elev-2:#fafafa;
+      --line:var(--n-86);
+
+      --text:var(--n-20);
+      --muted:var(--n-46);
+
+      /* Inputs & snippets */
+      --field-bg:var(--elev-2);
+      --field-fg:var(--n-20);
+      --snippet-bg:var(--n-97);
+      --snippet-fg:var(--n-20);
+
+      --brand-accent:var(--brand-400);
+      --heading-color:var(--brand-300); /* darker H1 for legibility in light mode */
+      --focus-ring:0 0 0 3px var(--alt-400), 0 0 0 5px rgba(5,41,98,.35);
+
+      --header-bg:var(--brand-400);
+      --header-fg:var(--n-100);
+      --header-underline:var(--alt-400);
+
+      --btn-bg:var(--alt-400);
+      --btn-fg:#1a1a1a; /* strong contrast on yellow */
+      --btn-border:transparent;
+
+      --btn-secondary-bg:transparent;
+      --btn-secondary-fg:var(--brand-400); /* deeper blue on light */
+      --btn-secondary-bd:var(--brand-400);
+
+      --card-hover-bd:var(--brand-800);
+      --link:var(--brand-800);
+    }
+
+    /* Dark overrides */
+    [data-theme="dark"]{
+      --surface:linear-gradient(180deg, #0E1522 0%, #0B101A 100%);
+      --elev-1:#121826;
+      --elev-2:#0E1420;
+      --line:#24304A;
+
+      --text:#F1F4F8;
+      --muted:#A9B3C3;
+
+      /* Inputs & snippets */
+      --field-bg:#0E1420;
+      --field-fg:#F1F4F8;
+      --snippet-bg:#0C1220;
+      --snippet-fg:#D7E3FF;
+
+      --brand-accent:var(--brand-800);
+      --heading-color:var(--brand-800);
+
+      --focus-ring:0 0 0 3px var(--alt-400), 0 0 0 6px rgba(193,216,252,.25);
+
+      --header-bg:#0C1428;
+      --header-fg:#EAF2FF;
+      --header-underline:var(--alt-400);
+
+      --btn-bg:var(--alt-400);
+      --btn-fg:#152033;      /* dark text on yellow for contrast */
+      --btn-border:rgba(0,0,0,.2);
+
+      --btn-secondary-bg:transparent;
+      --btn-secondary-fg:var(--brand-800);
+      --btn-secondary-bd:var(--brand-800);
+
+      --card-hover-bd:#2B3A5A;
+      --link:var(--brand-800);
+    }
+
+    /* =========================================================
+       Base & Layout
+       ========================================================= */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font:var(--font-size-base)/1.6 var(--ff);
+      color:var(--text);
+      background:var(--surface);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    a{color:var(--link); text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    header{
+      position:sticky; top:0; z-index:20;
+      background:var(--header-bg); color:var(--header-fg);
+      border-bottom:6px solid var(--header-underline);
+      box-shadow:var(--shadow-1);
+    }
+    .wrap{max-width:var(--container-w); margin-inline:auto; padding:var(--s-16)}
+
+    .brand{
+      display:flex; align-items:center; justify-content:space-between; gap:var(--s-16);
+      font-weight:800; letter-spacing:.2px;
+    }
+    .brand-left{display:flex; align-items:center; gap:var(--s-12)}
+    .dot{width:14px; height:14px; border-radius:50%; background:var(--alt-400); box-shadow:0 0 0 2px rgba(0,0,0,.25)}
+
+    .theme-toggle{
+      display:inline-flex; align-items:center; gap:10px; font-size:var(--font-size-sm); color:var(--header-fg);
+    }
+    .theme-toggle input{
+      appearance:none; width:46px; height:26px; border-radius:999px;
+      background:#23314D; border:1px solid #2E3D5C; position:relative; cursor:pointer;
+    }
+    .theme-toggle input:checked{background:linear-gradient(90deg, #3A62A8, #4C7BD2)}
+    .theme-toggle input::after{
+      content:""; position:absolute; top:2px; left:2px; width:20px; height:20px;
+      border-radius:999px; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.25);
+      transition:left .15s ease;
+    }
+    .theme-toggle input:checked::after{left:24px}
+
+    main{padding:var(--s-24) var(--s-16) var(--s-40)}
+    .view{display:none; margin-top:var(--s-40)}
+    .view.active{display:block; animation:fade .2s ease}
+    @keyframes fade{from{opacity:0; transform:translateY(4px)} to{opacity:1; transform:none}}
+
+    /* Title */
+    .app-title{
+      margin:0 0 var(--s-8);
+      font-size:1.5rem;
+      color:var(--heading-color);
+      display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    }
+    .mode-badge{
+      padding:2px 8px; border-radius:999px;
+      font-size:var(--font-size-xs); font-weight:800;
+      background:var(--alt-400); color:#152033;
+    }
+
+    /* Home Cards */
+    .home-grid{
+      display:grid; gap:var(--s-16);
+      grid-template-columns:repeat(auto-fit, minmax(240px,1fr));
+      margin-top:var(--s-16);
+    }
+    .card{
+      background:var(--elev-1);
+      border:1px solid var(--line);
+      border-radius:var(--r-12);
+      padding:var(--s-24);
+      box-shadow:var(--shadow-1);
+      cursor:pointer; position:relative;
+      transition:transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+    .card:hover{transform:translateY(-2px); box-shadow:var(--shadow-2); border-color:var(--card-hover-bd)}
+    .card h3{margin:0 0 var(--s-8); font-size:1.06rem; color:var(--brand-accent)}
+    .card p{margin:0; color:var(--muted)}
+    .pill{
+      position:absolute; top:var(--s-16); right:var(--s-16);
+      font-size:var(--font-size-xs); color:#0b0f14; background:var(--alt-400);
+      padding:2px 8px; border-radius:999px; font-weight:800; border:1px solid transparent;
+    }
+
+    /* Panels */
+    .panel{
+      background:var(--elev-1); border:1px solid var(--line);
+      border-radius:var(--r-12); padding:var(--s-24); box-shadow:var(--shadow-1);
+    }
+    .title-row{
+      display:flex; align-items:center; justify-content:space-between; gap:var(--s-12);
+      margin-bottom:var(--s-24);
+    }
+    .title-row h2{margin:0; font-size:1.25rem; color:var(--brand-accent)}
+
+    /* Buttons */
+    .btn{
+      appearance:none; border:1px solid var(--btn-border);
+      border-radius:var(--r-10); padding:10px 14px; cursor:pointer;
+      font-weight:800; font-size:var(--font-size-sm);
+      background:var(--btn-bg); color:var(--btn-fg);  /* theme-aware */
+      box-shadow:var(--shadow-1);
+      transition:transform .05s ease, box-shadow .15s ease;
+    }
+    .btn:hover{transform:translateY(-1px); box-shadow:var(--shadow-2)}
+    .btn:active{transform:translateY(0)}
+    .btn.secondary{
+      background:var(--btn-secondary-bg); color:var(--btn-secondary-fg); border-color:var(--btn-secondary-bd)
+    }
+    .btn:focus-visible{outline:none; box-shadow:var(--focus-ring)}
+
+    .back{
+      appearance:none; border:1px solid var(--line); background:var(--field-bg); color:var(--field-fg);
+      padding:8px 12px; border-radius:var(--r-10); cursor:pointer; font-size:var(--font-size-sm);
+      transition:border-color .15s ease, color .15s ease;
+    }
+    .back:hover{border-color:var(--brand-accent); color:var(--brand-accent)}
+    .back:focus-visible{outline:none; box-shadow:var(--focus-ring)}
+
+    /* Forms */
+    form{display:grid; gap:var(--s-24)}
+    .row{display:grid; gap:var(--s-16); grid-template-columns:1fr 1fr}
+    .field{display:flex; flex-direction:column; gap:var(--s-8)}
+    label{font-size:var(--font-size-sm); color:var(--muted); font-weight:700}
+    input[type="text"], input[type="url"], input[type="number"], textarea, select{
+      width:100%; padding:12px; border-radius:var(--r-10);
+      border:1px solid var(--line); background:var(--field-bg); color:var(--field-fg);  /* theme-aware */
+      outline:none; transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+    input::placeholder, textarea::placeholder{color:#8FA1BD}
+    input[type="color"]{width:100%; height:44px; border:1px solid var(--line); border-radius:var(--r-10); background:var(--field-bg)}
+    textarea{min-height:120px; resize:vertical}
+    input:focus, textarea:focus, select:focus{border-color:var(--brand-accent); box-shadow:var(--focus-ring)}
+
+    /* Toggles */
+    .switch{display:inline-flex; align-items:center; gap:var(--s-12)}
+    .switch input{
+      appearance:none; width:46px; height:26px; border-radius:999px; background:#22304B;
+      position:relative; cursor:pointer; border:1px solid #2B3A58; transition:background .15s ease, border-color .15s ease;
+    }
+    .switch input:checked{background:linear-gradient(90deg, #3A62A8, #4C7BD2); border-color:#3A62A8}
+    .switch input::after{
+      content:""; position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:#fff; transition:left .15s ease
+    }
+    .switch input:checked::after{left:24px}
+
+    /* Output snippet area */
+    .out{display:grid; gap:var(--s-16); margin-top:var(--s-8)}
+    .snippet{
+      width:100%; min-height:140px; padding:12px; border-radius:var(--r-10);
+      background:var(--snippet-bg); color:var(--snippet-fg);  /* theme-aware */
+      border:1px dashed #28406A;
+      font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+      white-space:pre; overflow:auto;
+    }
+    .hint{font-size:var(--font-size-sm); color:var(--muted)}
+    .error{color:var(--err-500); font-weight:700; font-size:var(--font-size-sm)}
+
+    /* Contrast badges */
+    .badges{display:flex; gap:8px; flex-wrap:wrap}
+    .badge{display:inline-block; padding:2px 8px; border-radius:999px; font-size:var(--font-size-xs); font-weight:800}
+    .pass-aaa{background:linear-gradient(90deg,#58D08B,#22874D); color:#0f1a12}
+    .pass-aa{background:#FFE500; color:#1a1a1a}
+    .fail{background:#C70000; color:#fff}
+
+    /* Footer */
+    footer.hint{ padding: var(--s-24) 0; } /* requested padding */
+
+    /* Responsive */
+    @media (max-width: 760px){
+      main{padding:var(--s-16)}
+      form{gap:var(--s-16)}
+      .row{grid-template-columns:1fr}
+      .view{margin-top:var(--s-24)}
+    }
+  </style>
+</head>
+
+<body>
+  <!-- =========================================================
+       Header
+       ========================================================= -->
+  <header>
+    <div class="wrap brand">
+      <div class="brand-left">
+        <div class="dot" aria-hidden="true"></div>
+        <div>Interactive Snippet Builder</div>
+      </div>
+
+      <label class="theme-toggle" title="Toggle theme">
+        <span id="mode-label">dark</span>
+        <input id="theme-toggle" type="checkbox" checked />
+      </label>
+    </div>
+  </header>
+
+  <!-- =========================================================
+       Main
+       ========================================================= -->
+  <main class="wrap">
+    <!-- Home -->
+    <section id="view-home" class="view active" aria-labelledby="home-heading">
+      <h1 id="home-heading" class="app-title">
+        Choose a template
+        <span id="mode-badge" class="mode-badge">dark</span>
+      </h1>
+
+      <p class="hint">
+        Each builder outputs a single
+        <code>&lt;div class="interactive" data-props='…'&gt;</code>
+        string using straight quotes &amp; valid JSON.
+      </p>
+
+      <div class="home-grid" role="list">
+        <article class="card" role="listitem" data-goto="colour">
+          <span class="pill">template</span>
+          <h3>Colour</h3>
+          <p>Define a colour token or swatch.</p>
+        </article>
+
+        <article class="card" role="listitem" data-goto="video">
+          <span class="pill">template</span>
+          <h3>Video</h3>
+          <p>Poster, sources, advanced mobile/desktop.</p>
+        </article>
+
+        <article class="card" role="listitem" data-goto="audio">
+          <span class="pill">template</span>
+          <h3>Audio</h3>
+          <p>MP3/OGG sources, autoplay, loop.</p>
+        </article>
+
+        <article class="card" role="listitem" data-goto="dev">
+          <span class="pill">advanced</span>
+          <h3>&lt;dev&gt;</h3>
+          <p>Free-form JSON (bring your own keys).</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Colour -->
+    <section id="view-colour" class="view" aria-labelledby="colour-heading">
+      <div class="panel">
+        <div class="title-row">
+          <h2 id="colour-heading">Colour builder</h2>
+          <button class="back" data-back>← Back</button>
+        </div>
+
+        <form id="form-colour" autocomplete="off">
+          <div class="row">
+            <div class="field">
+              <label for="colour-name">Name</label>
+              <input id="colour-name" type="text" placeholder="e.g. brandPrimary" />
+            </div>
+
+            <div class="field">
+              <label for="colour-value">Value</label>
+              <input id="colour-value" type="color" value="#ff69b4" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="colour-hex">Hex (auto)</label>
+              <input id="colour-hex" type="text" placeholder="#RRGGBB" value="#ff69b4" />
+            </div>
+
+            <div class="field">
+              <label class="switch" for="colour-contrast">
+                <input id="colour-contrast" type="checkbox" />
+                <span>Include suggestedContrastText</span>
+              </label>
+            </div>
+          </div>
+        </form>
+
+        <div class="out">
+          <div class="actions">
+            <button class="btn" data-copy="colour">Copy to clipboard</button>
+            <button class="btn secondary" data-reset="colour">Reset</button>
+          </div>
+
+          <textarea id="out-colour" class="snippet" readonly></textarea>
+
+          <!-- Accessibility info only (requested) -->
+          <div id="acc-colour" class="hint" aria-live="polite"></div>
+
+          <p id="msg-colour" class="hint" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Video -->
+    <section id="view-video" class="view" aria-labelledby="video-heading">
+      <div class="panel">
+        <div class="title-row">
+          <h2 id="video-heading">Video builder</h2>
+          <button class="back" data-back>← Back</button>
+        </div>
+
+        <form id="form-video" autocomplete="off">
+          <!-- Basic metadata -->
+          <div class="row">
+            <div class="field">
+              <label for="video-poster">Poster URL</label>
+              <input id="video-poster" type="url" placeholder="https://example.com/poster.jpg" />
+            </div>
+
+            <div class="field">
+              <label for="video-type">Video type</label>
+              <select id="video-type">
+                <option value="header">header</option>
+                <option value="inline">inline</option>
+                <option value="immersive">immersive</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="row">
+            <div class="field">
+              <label class="switch" for="video-controls">
+                <input id="video-controls" type="checkbox" checked />
+                <span>controls</span>
+              </label>
+            </div>
+
+            <div class="field">
+              <label class="switch" for="video-autoplay">
+                <input id="video-autoplay" type="checkbox" />
+                <span>autoplay</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Simple sources (dynamic labels) -->
+          <div class="row">
+            <div class="field">
+              <label id="label-video-mp4" for="video-mp4">MP4</label>
+              <input id="video-mp4" type="url" placeholder="https://example.com/video.h264.mp4" />
+            </div>
+
+            <div class="field">
+              <label id="label-video-webm" for="video-webm">WebM (optional)</label>
+              <input id="video-webm" type="url" placeholder="https://example.com/video.av1.webm" />
+            </div>
+          </div>
+
+          <!-- Tracks / metadata -->
+          <div class="row">
+            <div class="field">
+              <label for="video-vtt">Captions VTT (optional)</label>
+              <input id="video-vtt" type="url" placeholder="https://example.com/tracks/en.vtt" />
+            </div>
+
+            <div class="field">
+              <label for="video-transcript">Transcript URL (optional)</label>
+              <input id="video-transcript" type="url" placeholder="https://example.com/transcripts/story.html" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="video-attribution">Attribution (optional)</label>
+              <input id="video-attribution" type="text" placeholder="The sound of earthworms in soil. Credit: Baker Consultants Ltd" />
+            </div>
+
+            <div class="field">
+              <label class="switch" for="video-advanced">
+                <input id="video-advanced" type="checkbox" />
+                <span>Enable advanced sources (mobile / desktop)</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Advanced (mobile/desktop only) -->
+          <div id="video-advanced-block" style="display:none">
+            <div class="row">
+              <div class="field">
+                <label for="vd-mob-mp4">Mobile — MP4</label>
+                <input id="vd-mob-mp4" type="url" placeholder="/video/mobile.h264.mp4" />
+              </div>
+              <div class="field">
+                <label for="vd-mob-webm">Mobile — WebM (optional)</label>
+                <input id="vd-mob-webm" type="url" placeholder="/video/mobile.av1.webm" />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label for="vd-desk-mp4">Desktop — MP4</label>
+                <input id="vd-desk-mp4" type="url" placeholder="/video/desktop.h264.mp4" />
+              </div>
+              <div class="field">
+                <label for="vd-desk-webm">Desktop — WebM (optional)</label>
+                <input id="vd-desk-webm" type="url" placeholder="/video/desktop.av1.webm" />
+              </div>
+            </div>
+
+            <p class="hint">Leave a field blank to inherit the main MP4/WebM above.</p>
+          </div>
+        </form>
+
+        <div class="out">
+          <div class="actions">
+            <button class="btn" data-copy="video">Copy to clipboard</button>
+            <button class="btn secondary" data-reset="video">Reset</button>
+          </div>
+
+          <textarea id="out-video" class="snippet" readonly></textarea>
+          <p id="msg-video" class="hint" role="status" aria-live="polite"></p>
+
+          <p class="hint">
+            If you supply both MP4 and WebM, the MP4 will be treated as a <strong>fallback</strong>.<br/>
+            If you add <strong>mobile/desktop</strong> sources, they will be used <em>instead of</em> the main MP4/WebM URLs.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Audio -->
+    <section id="view-audio" class="view" aria-labelledby="audio-heading">
+      <div class="panel">
+        <div class="title-row">
+          <h2 id="audio-heading">Audio builder</h2>
+          <button class="back" data-back>← Back</button>
+        </div>
+
+        <form id="form-audio" autocomplete="off">
+          <div class="row">
+            <div class="field">
+              <label class="switch" for="audio-controls">
+                <input id="audio-controls" type="checkbox" checked />
+                <span>controls</span>
+              </label>
+            </div>
+
+            <div class="field">
+              <label class="switch" for="audio-autoplay">
+                <input id="audio-autoplay" type="checkbox" />
+                <span>autoplay</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label class="switch" for="audio-loop">
+                <input id="audio-loop" type="checkbox" />
+                <span>loop</span>
+              </label>
+            </div>
+
+            <div class="field">
+              <label for="audio-attribution">Attribution (optional)</label>
+              <input id="audio-attribution" type="text" placeholder="Recorded by Baker Consultants Ltd" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="audio-mp3">MP3 source</label>
+              <input id="audio-mp3" type="url" placeholder="https://example.com/audio.mp3" />
+            </div>
+
+            <div class="field">
+              <label for="audio-ogg">OGG source (optional)</label>
+              <input id="audio-ogg" type="url" placeholder="https://example.com/audio.ogg" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="audio-transcript">Transcript URL (optional)</label>
+              <input id="audio-transcript" type="url" placeholder="https://example.com/transcripts/audio.html" />
+            </div>
+          </div>
+        </form>
+
+        <div class="out">
+          <div class="actions">
+            <button class="btn" data-copy="audio">Copy to clipboard</button>
+            <button class="btn secondary" data-reset="audio">Reset</button>
+          </div>
+
+          <textarea id="out-audio" class="snippet" readonly></textarea>
+          <p id="msg-audio" class="hint" role="status" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dev -->
+    <section id="view-dev" class="view" aria-labelledby="dev-heading">
+      <div class="panel">
+        <div class="title-row">
+          <h2 id="dev-heading">&lt;dev&gt; builder</h2>
+          <button class="back" data-back>← Back</button>
+        </div>
+
+        <form id="form-dev" autocomplete="off">
+          <div class="row">
+            <div class="field">
+              <label for="dev-element">Element name</label>
+              <input id="dev-element" type="text" placeholder='e.g. "gallery" or "quiz"' />
+            </div>
+
+            <div class="field">
+              <label class="switch" for="dev-pretty">
+                <input id="dev-pretty" type="checkbox" />
+                <span>Pretty-print JSON (for readability only)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="dev-json">Custom JSON props (object). Your "element" field will be set from the input above.</label>
+            <textarea id="dev-json" placeholder='{
+  "theme": "dark",
+  "items": [1,2,3],
+  "featureFlag": true
+}'></textarea>
+          </div>
+
+          <p class="hint">
+            JSON must be valid. Example keys will be merged with
+            <code>{"element":"your-element"}</code>.<br/>
+            JSON is <strong>minified</strong> and safely <strong>escaped</strong> for a single-quoted
+            <code>data-props</code> attribute.
+          </p>
+        </form>
+
+        <div class="out">
+          <div class="actions">
+            <button class="btn" data-copy="dev">Copy to clipboard</button>
+            <button class="btn secondary" data-reset="dev">Reset</button>
+          </div>
+
+          <textarea id="out-dev" class="snippet" readonly></textarea>
+          <p id="msg-dev" class="hint" role="status" aria-live="polite"></p>
+          <p id="err-dev" class="error" aria-live="assertive"></p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="hint">
+      Copy and embed into composer with the 'Interactive Element Builder' atom to create
+    </footer>
+  </main>
+
+  <!-- =========================================================
+       Scripts
+       ========================================================= -->
+  <script>
+    /* ---------------------------------------------------------
+       Theme toggle
+    --------------------------------------------------------- */
+    const root        = document.documentElement;
+    const themeToggle = document.getElementById('theme-toggle');
+    const modeLabel   = document.getElementById('mode-label');
+    const modeBadge   = document.getElementById('mode-badge');
+
+    function setTheme(isDark){
+      if(isDark){
+        root.setAttribute('data-theme','dark');
+        themeToggle.checked = true;
+        modeLabel.textContent = 'dark';
+        modeBadge.textContent = 'dark';
+      }else{
+        root.removeAttribute('data-theme');
+        themeToggle.checked = false;
+        modeLabel.textContent = 'light';
+        modeBadge.textContent = 'light';
+      }
+      try{ localStorage.setItem('snippet-theme', isDark ? 'dark' : 'light'); }catch{}
+    }
+
+    themeToggle.addEventListener('change', () => setTheme(themeToggle.checked));
+
+    (function initTheme(){
+      try{
+        const saved = localStorage.getItem('snippet-theme');
+        setTheme(saved !== 'light'); // default to dark
+      }catch{ setTheme(true); }
+    })();
+
+    /* ---------------------------------------------------------
+       Simple hash router
+    --------------------------------------------------------- */
+    const views = ["home","colour","video","audio","dev"];
+
+    function show(id){
+      for(const v of views){
+        const el = document.getElementById("view-"+v);
+        el.classList.toggle("active", v === id);
+      }
+      if(id==="colour") updateColour();
+      if(id==="video")  { toggleAdvancedBlock(); updateVideoLabels(); updateVideo(); }
+      if(id==="audio")  updateAudio();
+      if(id==="dev")    updateDev();
+      history.replaceState(null, "", "#"+id);
+    }
+
+    document.querySelectorAll(".card").forEach(el => {
+      el.addEventListener("click", () => show(el.getAttribute("data-goto")));
+    });
+    document.querySelectorAll("[data-back]").forEach(btn => {
+      btn.addEventListener("click", () => show("home"));
+    });
+    const initial = location.hash.replace("#","") || "home";
+    show(views.includes(initial) ? initial : "home");
+
+    /* ---------------------------------------------------------
+       Helpers
+    --------------------------------------------------------- */
+    function escapeForSingleQuotedAttr(str){
+      return str
+        .replace(/&/g,"&amp;")
+        .replace(/'/g,"&#39;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;");
+    }
+
+    function buildSnippet(propsObj){
+      const json    = JSON.stringify(propsObj);
+      const escaped = escapeForSingleQuotedAttr(json);
+      return `<div class="interactive" data-props='${escaped}'></div>`;
+    }
+
+    async function copy(text, msgEl){
+      try{
+        await navigator.clipboard.writeText(text);
+        msgEl.textContent = "✅ Copied to clipboard.";
+      }catch{
+        const ta = document.createElement("textarea");
+        ta.value = text; document.body.appendChild(ta); ta.select();
+        try{
+          document.execCommand("copy");
+          msgEl.textContent = "✅ Copied to clipboard.";
+        }catch{
+          msgEl.textContent = "⚠️ Copy failed. Select and copy manually.";
+        }finally{
+          document.body.removeChild(ta);
+        }
+      }
+      setTimeout(() => { msgEl.textContent = ""; }, 3000);
+    }
+
+    function resetForm(form){
+      form.reset();
+      const color = form.querySelector('input[type="color"]');
+      const hex   = form.querySelector('#colour-hex');
+      if(color && hex){ color.value = "#ff69b4"; hex.value = "#ff69b4"; }
+    }
+
+    /* ---------------------------------------------------------
+       Colour Builder
+    --------------------------------------------------------- */
+    const colourEls = {
+      form:      document.getElementById("form-colour"),
+      name:      document.getElementById("colour-name"),
+      color:     document.getElementById("colour-value"),
+      hex:       document.getElementById("colour-hex"),
+      contrast:  document.getElementById("colour-contrast"),
+      out:       document.getElementById("out-colour"),
+      msg:       document.getElementById("msg-colour"),
+      acc:       document.getElementById("acc-colour")
+    };
+
+    colourEls.color.addEventListener("input", () => {
+      colourEls.hex.value = colourEls.color.value.toLowerCase();
+      updateColour();
+    });
+    colourEls.hex.addEventListener("input", () => {
+      const v = colourEls.hex.value.trim();
+      if(/^#([0-9a-fA-F]{6})$/.test(v)){
+        colourEls.color.value = v.toLowerCase();
+      }
+      updateColour();
+    });
+    ["input","change"].forEach(ev => {
+      colourEls.form.addEventListener(ev, updateColour);
+    });
+
+    function getLuminance(hex){
+      const r = parseInt(hex.slice(1,3),16) / 255;
+      const g = parseInt(hex.slice(3,5),16) / 255;
+      const b = parseInt(hex.slice(5,7),16) / 255;
+      const lin = c => (c <= 0.03928) ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4);
+      const sr = lin(r), sg = lin(g), sb = lin(b);
+      return 0.2126*sr + 0.7152*sg + 0.0722*sb;
+    }
+
+    function contrastRatio(fgHex, bgHex){
+      const L1 = getLuminance(fgHex);
+      const L2 = getLuminance(bgHex);
+      const light = Math.max(L1, L2), dark = Math.min(L1, L2);
+      return (light + 0.05) / (dark + 0.05);
+    }
+
+    function wcagBadges(ratio){
+      const res = { small:'Fail', large:'Fail', clsSmall:'fail', clsLarge:'fail' };
+      if(ratio >= 7){
+        res.small='AAA'; res.large='AAA'; res.clsSmall='pass-aaa'; res.clsLarge='pass-aaa';
+      }else if(ratio >= 4.5){
+        res.small='AA'; res.large='AAA'; res.clsSmall='pass-aa'; res.clsLarge='pass-aaa';
+      }else if(ratio >= 3){
+        res.small='Fail'; res.large='AA'; res.clsSmall='fail'; res.clsLarge='pass-aa';
+      }
+      return res;
+    }
+
+    function hexToRgb(hex){
+      const r = parseInt(hex.slice(1,3),16);
+      const g = parseInt(hex.slice(3,5),16);
+      const b = parseInt(hex.slice(5,7),16);
+      return { r, g, b };
+    }
+
+    function updateColour(){
+      const name = colourEls.name.value.trim() || "brandPrimary";
+      const hex  = (colourEls.hex.value.trim() || "#ff69b4").toLowerCase();
+      const rgb  = hexToRgb(hex);
+      const rgbString = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+
+      // Suggested text colour by luminance
+      const suggestedText = (getLuminance(hex) > 0.5) ? "#000000" : "#ffffff";
+      const ratio  = contrastRatio(suggestedText, hex);
+      const badges = wcagBadges(ratio);
+
+      // Output EXACT keys requested: hex + rgb
+      const obj = {
+        element: "colour",
+        name,
+        hex,
+        rgb: rgbString
+      };
+      if(colourEls.contrast.checked){
+        obj.suggestedContrastText = suggestedText;
+      }
+
+      colourEls.out.value = buildSnippet(obj);
+
+      // Accessibility summary
+      colourEls.acc.innerHTML = `
+        Suggested text <code>${suggestedText}</code> vs background
+        <code>${hex}</code> (${rgbString})
+        → contrast <strong>${ratio.toFixed(2)}:1</strong>
+        <span class="badges">
+          <span class="badge ${badges.clsSmall}">Small text: ${badges.small}</span>
+          <span class="badge ${badges.clsLarge}">Large text: ${badges.large}</span>
+        </span>
+      `;
+    }
+
+    document.querySelector('[data-copy="colour"]')
+      .addEventListener("click", () => copy(colourEls.out.value, colourEls.msg));
+    document.querySelector('[data-reset="colour"]')
+      .addEventListener("click", () => { resetForm(colourEls.form); updateColour(); });
+
+    /* ---------------------------------------------------------
+       Video Builder
+    --------------------------------------------------------- */
+    const videoEls = {
+      form:        document.getElementById("form-video"),
+      poster:      document.getElementById("video-poster"),
+      type:        document.getElementById("video-type"),
+      controls:    document.getElementById("video-controls"),
+      autoplay:    document.getElementById("video-autoplay"),
+
+      // Base sources
+      mp4:         document.getElementById("video-mp4"),
+      webm:        document.getElementById("video-webm"),
+      labelMp4:    document.getElementById("label-video-mp4"),
+      labelWebm:   document.getElementById("label-video-webm"),
+
+      // Tracks / text
+      vtt:         document.getElementById("video-vtt"),
+      transcript:  document.getElementById("video-transcript"),
+      attribution: document.getElementById("video-attribution"),
+
+      // Advanced (mobile/desktop)
+      advancedToggle: document.getElementById("video-advanced"),
+      advancedBlock:  document.getElementById("video-advanced-block"),
+      mobMp4:   document.getElementById("vd-mob-mp4"),
+      mobWebm:  document.getElementById("vd-mob-webm"),
+      deskMp4:  document.getElementById("vd-desk-mp4"),
+      deskWebm: document.getElementById("vd-desk-webm"),
+
+      out: document.getElementById("out-video"),
+      msg: document.getElementById("msg-video")
+    };
+
+    function toggleAdvancedBlock(){
+      videoEls.advancedBlock.style.display = videoEls.advancedToggle.checked ? "block" : "none";
+
+      // Prefill empty advanced fields from base MP4/WebM when enabled
+      if(videoEls.advancedToggle.checked){
+        const baseMp4  = videoEls.mp4.value.trim();
+        const baseWebm = videoEls.webm.value.trim();
+        if(baseMp4){
+          if(!videoEls.mobMp4.value.trim())  videoEls.mobMp4.value  = baseMp4;
+          if(!videoEls.deskMp4.value.trim()) videoEls.deskMp4.value = baseMp4;
+        }
+        if(baseWebm){
+          if(!videoEls.mobWebm.value.trim())  videoEls.mobWebm.value  = baseWebm;
+          if(!videoEls.deskWebm.value.trim()) videoEls.deskWebm.value = baseWebm;
+        }
+      }
+    }
+
+    function updateVideoLabels(){
+      const hasMp4  = !!videoEls.mp4.value.trim();
+      const hasWebm = !!videoEls.webm.value.trim();
+
+      // - MP4 shows "MP4" unless both present -> "MP4 (fallback)"
+      // - WebM shows "WebM (optional)" unless both present -> "WebM"
+      videoEls.labelMp4.textContent  = (hasMp4 && hasWebm) ? "MP4 (fallback)" : "MP4";
+      videoEls.labelWebm.textContent = hasWebm ? (hasMp4 ? "WebM" : "WebM (optional)") : "WebM (optional)";
+    }
+
+    ["input","change"].forEach(ev => {
+      videoEls.form.addEventListener(ev, () => {
+        toggleAdvancedBlock();
+        updateVideoLabels();
+        updateVideo();
+      });
+    });
+
+    function updateVideo(){
+      const sources = {};
+
+      // Base sources
+      const baseMp4  = videoEls.mp4.value.trim();
+      const baseWebm = videoEls.webm.value.trim();
+      if(baseMp4)  sources.mp4  = baseMp4;
+      if(baseWebm) sources.webm = baseWebm;
+
+      // Advanced responsive (mobile/desktop) nested under sources.responsive
+      if(videoEls.advancedToggle.checked){
+        const responsive = {};
+        const mobile  = {};
+        const desktop = {};
+
+        const mobMp4  = videoEls.mobMp4.value.trim()  || baseMp4;
+        const mobWebm = videoEls.mobWebm.value.trim() || baseWebm;
+        if(mobMp4)  mobile.mp4  = mobMp4;
+        if(mobWebm) mobile.webm = mobWebm;
+
+        const deskMp4  = videoEls.deskMp4.value.trim()  || baseMp4;
+        const deskWebm = videoEls.deskWebm.value.trim() || baseWebm;
+        if(deskMp4)  desktop.mp4  = deskMp4;
+        if(deskWebm) desktop.webm = deskWebm;
+
+        if(Object.keys(mobile).length)  responsive.mobile  = mobile;
+        if(Object.keys(desktop).length) responsive.desktop = desktop;
+        if(Object.keys(responsive).length) sources.responsive = responsive;
+      }
+
+      const obj = {
+        element:     "video",
+        poster:      videoEls.poster.value.trim() || undefined,
+        controls:    Boolean(videoEls.controls.checked),
+        videoType:   videoEls.type.value,  // header | inline | immersive
+        sources:     Object.keys(sources).length ? sources : undefined,
+        autoplay:    videoEls.autoplay.checked || undefined,
+        vtt:         videoEls.vtt.value.trim() || undefined,
+        transcript:  videoEls.transcript.value.trim() || undefined,
+        attribution: videoEls.attribution.value.trim() || undefined
+      };
+
+      // Remove undefined
+      Object.keys(obj).forEach(k => obj[k] === undefined && delete obj[k]);
+
+      videoEls.out.value = buildSnippet(obj);
+    }
+
+    document.querySelector('[data-copy="video"]')
+      .addEventListener("click", () => copy(videoEls.out.value, videoEls.msg));
+    document.querySelector('[data-reset="video"]')
+      .addEventListener("click", () => {
+        resetForm(videoEls.form);
+        toggleAdvancedBlock();
+        updateVideoLabels();
+        updateVideo();
+      });
+
+    /* ---------------------------------------------------------
+       Audio Builder
+    --------------------------------------------------------- */
+    const audioEls = {
+      form:        document.getElementById("form-audio"),
+      controls:    document.getElementById("audio-controls"),
+      autoplay:    document.getElementById("audio-autoplay"),
+      loop:        document.getElementById("audio-loop"),
+      attribution: document.getElementById("audio-attribution"),
+      mp3:         document.getElementById("audio-mp3"),
+      ogg:         document.getElementById("audio-ogg"),
+      transcript:  document.getElementById("audio-transcript"),
+      out:         document.getElementById("out-audio"),
+      msg:         document.getElementById("msg-audio")
+    };
+
+    ["input","change"].forEach(ev => { audioEls.form.addEventListener(ev, updateAudio); });
+
+    function updateAudio(){
+      const sources = [];
+      const mp3 = audioEls.mp3.value.trim();
+      const ogg = audioEls.ogg.value.trim();
+      if(mp3) sources.push({ mp3 });
+      if(ogg) sources.push({ ogg });
+
+      const obj = {
+        element:     "audio",
+        controls:    Boolean(audioEls.controls.checked),
+        autoplay:    audioEls.autoplay.checked || undefined,
+        loop:        audioEls.loop.checked || undefined,
+        sources,
+        attribution: audioEls.attribution.value.trim() || undefined,
+        transcript:  audioEls.transcript.value.trim() || undefined
+      };
+
+      Object.keys(obj).forEach(k => obj[k] === undefined && delete obj[k]);
+      audioEls.out.value = buildSnippet(obj);
+    }
+
+    document.querySelector('[data-copy="audio"]')
+      .addEventListener("click", () => copy(audioEls.out.value, audioEls.msg));
+    document.querySelector('[data-reset="audio"]')
+      .addEventListener("click", () => { resetForm(audioEls.form); updateAudio(); });
+
+    /* ---------------------------------------------------------
+       Dev Builder
+    --------------------------------------------------------- */
+    const devEls = {
+      form:     document.getElementById("form-dev"),
+      element:  document.getElementById("dev-element"),
+      pretty:   document.getElementById("dev-pretty"),
+      json:     document.getElementById("dev-json"),
+      out:      document.getElementById("out-dev"),
+      msg:      document.getElementById("msg-dev"),
+      err:      document.getElementById("err-dev")
+    };
+
+    ["input","change"].forEach(ev => { devEls.form.addEventListener(ev, updateDev); });
+
+    function updateDev(){
+      devEls.err.textContent = "";
+
+      const elementName = (devEls.element.value.trim() || "custom");
+      let obj = {};
+
+      const raw = devEls.json.value.trim();
+      if(raw){
+        try{
+          const parsed = JSON.parse(raw);
+          if(Object.prototype.toString.call(parsed) !== "[object Object]"){
+            throw new Error("Root must be an object");
+          }
+          obj = parsed;
+        }catch(e){
+          devEls.err.textContent = "JSON error: " + e.message;
+        }
+      }
+
+      obj.element = elementName;
+
+      const json    = devEls.pretty.checked ? JSON.stringify(obj, null, 2) : JSON.stringify(obj);
+      const escaped = escapeForSingleQuotedAttr(json);
+      devEls.out.value = `<div class="interactive" data-props='${escaped}'></div>`;
+    }
+
+    document.querySelector('[data-copy="dev"]')
+      .addEventListener("click", () => copy(devEls.out.value, devEls.msg));
+    document.querySelector('[data-reset="dev"]')
+      .addEventListener("click", () => { resetForm(devEls.form); updateDev(); });
+
+    /* ---------------------------------------------------------
+       Initialize outputs for direct routes
+    --------------------------------------------------------- */
+    if(location.hash==="#colour") updateColour();
+    if(location.hash==="#video")  { toggleAdvancedBlock(); updateVideoLabels(); updateVideo(); }
+    if(location.hash==="#audio")  updateAudio();
+    if(location.hash==="#dev")    updateDev();
+  </script>
+</body>
+</html>
