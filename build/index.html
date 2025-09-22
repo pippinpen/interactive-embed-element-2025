@@ -284,14 +284,6 @@
 				gap: 8px;
 				flex-wrap: wrap;
 			}
-			.mode-badge {
-				padding: 2px 8px;
-				border-radius: 999px;
-				font-size: var(--font-size-xs);
-				font-weight: 800;
-				background: var(--alt-400);
-				color: #152033;
-			}
 
 			/* Home Cards */
 			.home-grid {
@@ -611,7 +603,6 @@
 			>
 				<h1 id="home-heading" class="app-title">
 					Choose a template
-					<span id="mode-badge" class="mode-badge">dark</span>
 				</h1>
 
 				<p class="hint">
@@ -753,6 +744,13 @@
 								<label class="switch" for="video-autoplay">
 									<input id="video-autoplay" type="checkbox" />
 									<span>autoplay</span>
+								</label>
+							</div>
+
+              <div class="field">
+								<label class="switch" for="video-loop">
+									<input id="video-loop" type="checkbox" />
+									<span>loop</span>
 								</label>
 							</div>
 						</div>
@@ -1048,19 +1046,16 @@
 			const root = document.documentElement;
 			const themeToggle = document.getElementById("theme-toggle");
 			const modeLabel = document.getElementById("mode-label");
-			const modeBadge = document.getElementById("mode-badge");
 
 			function setTheme(isDark) {
 				if (isDark) {
 					root.setAttribute("data-theme", "dark");
 					themeToggle.checked = true;
 					modeLabel.textContent = "dark";
-					modeBadge.textContent = "dark";
 				} else {
 					root.removeAttribute("data-theme");
 					themeToggle.checked = false;
 					modeLabel.textContent = "light";
-					modeBadge.textContent = "light";
 				}
 				try {
 					localStorage.setItem("snippet-theme", isDark ? "dark" : "light");
@@ -1303,6 +1298,7 @@
 				type: document.getElementById("video-type"),
 				controls: document.getElementById("video-controls"),
 				autoplay: document.getElementById("video-autoplay"),
+        loop: document.getElementById("video-loop"),
 
 				// Base sources
 				mp4: document.getElementById("video-mp4"),
@@ -1407,7 +1403,8 @@
 					controls: Boolean(videoEls.controls.checked),
 					videoType: videoEls.type.value, // header | inline | immersive
 					sources: Object.keys(sources).length ? sources : undefined,
-					autoplay: videoEls.autoplay.checked || undefined,
+					autoplay: Boolean(videoEls.autoplay.checked) || undefined,
+          loop: Boolean(videoEls.loop.checked) || undefined,
 					vtt: videoEls.vtt.value.trim() || undefined,
 					transcript: videoEls.transcript.value.trim() || undefined,
 					attribution: videoEls.attribution.value.trim() || undefined,
