@@ -601,9 +601,7 @@
 				class="view active"
 				aria-labelledby="home-heading"
 			>
-				<h1 id="home-heading" class="app-title">
-					Choose a template
-				</h1>
+				<h1 id="home-heading" class="app-title">Choose a template</h1>
 
 				<p class="hint">
 					Each builder outputs a single
@@ -747,7 +745,7 @@
 								</label>
 							</div>
 
-              <div class="field">
+							<div class="field">
 								<label class="switch" for="video-loop">
 									<input id="video-loop" type="checkbox" />
 									<span>loop</span>
@@ -1298,7 +1296,7 @@
 				type: document.getElementById("video-type"),
 				controls: document.getElementById("video-controls"),
 				autoplay: document.getElementById("video-autoplay"),
-        loop: document.getElementById("video-loop"),
+				loop: document.getElementById("video-loop"),
 
 				// Base sources
 				mp4: document.getElementById("video-mp4"),
@@ -1403,8 +1401,8 @@
 					controls: Boolean(videoEls.controls.checked),
 					videoType: videoEls.type.value, // header | inline | immersive
 					sources: Object.keys(sources).length ? sources : undefined,
-					autoplay: Boolean(videoEls.autoplay.checked) || undefined,
-          loop: Boolean(videoEls.loop.checked) || undefined,
+					autoplay: videoEls.autoplay.checked || undefined,
+					loop: videoEls.loop.checked || undefined,
 					vtt: videoEls.vtt.value.trim() || undefined,
 					transcript: videoEls.transcript.value.trim() || undefined,
 					attribution: videoEls.attribution.value.trim() || undefined,
@@ -1450,18 +1448,19 @@
 			});
 
 			function updateAudio() {
-				const sources = [];
-				const mp3 = audioEls.mp3.value.trim();
-				const ogg = audioEls.ogg.value.trim();
-				if (mp3) sources.push({ mp3 });
-				if (ogg) sources.push({ ogg });
+				const sources = {};
+
+				const baseMp3 = audioEls.mp3.value.trim();
+				const baseOgg = audioEls.ogg.value.trim();
+				if (baseMp3) sources.mp3 = baseMp3;
+				if (baseOgg) sources.ogg = baseOgg;
 
 				const obj = {
 					element: "audio",
 					controls: Boolean(audioEls.controls.checked),
 					autoplay: audioEls.autoplay.checked || undefined,
 					loop: audioEls.loop.checked || undefined,
-					sources,
+					sources: Object.keys(sources).length ? sources : undefined,
 					attribution: audioEls.attribution.value.trim() || undefined,
 					transcript: audioEls.transcript.value.trim() || undefined,
 				};
